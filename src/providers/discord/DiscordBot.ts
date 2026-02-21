@@ -88,8 +88,19 @@ export class DiscordBotProvider implements IProvider {
       autoArchiveDuration: 60,
     });
 
-    assistant.onResponse((message: string) => {
-      thread.send(message);
+    assistant.onResponse(async (message: string) => {
+      if (message.length > 1900) {
+        await thread.send({
+          files: [
+            {
+              attachment: Buffer.from(message, "utf-8"),
+              name: "response.md",
+            },
+          ],
+        });
+      } else {
+        await thread.send(message);
+      }
     });
 
     assistant.conversation!.addUserMessage(message.cleanContent);
@@ -108,8 +119,20 @@ export class DiscordBotProvider implements IProvider {
       await app.storage.getConversation(conversationId),
     );
 
-    assistant.onResponse((msg: string) => {
-      (message.channel as ThreadChannel).send(msg);
+    assistant.onResponse(async (msg: string) => {
+      const channel = message.channel as ThreadChannel;
+      if (msg.length > 3900) {
+        await channel.send({
+          files: [
+            {
+              attachment: Buffer.from(msg, "utf-8"),
+              name: "response.md",
+            },
+          ],
+        });
+      } else {
+        await channel.send(msg);
+      }
     });
 
     assistant.conversation!.addUserMessage(message.cleanContent);

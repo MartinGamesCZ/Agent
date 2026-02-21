@@ -14,6 +14,10 @@ export class Conversation {
     return this.#id;
   }
 
+  addSystemMessage(message: string): void {
+    this.#messages.push(new Message(MessageAuthor.System, message));
+  }
+
   addUserMessage(message: string): void {
     this.#messages.push(new Message(MessageAuthor.User, message));
   }
@@ -37,11 +41,16 @@ export class Conversation {
   }
 
   toOpenAIFormat(): {
-    role: "user" | "assistant";
+    role: "system" | "user" | "assistant";
     content: string;
   }[] {
     return this.#messages.map((message) => ({
-      role: message.author === MessageAuthor.User ? "user" : "assistant",
+      role:
+        message.author === MessageAuthor.System
+          ? "system"
+          : message.author === MessageAuthor.User
+            ? "user"
+            : "assistant",
       content: message.content,
     }));
   }

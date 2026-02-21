@@ -5,12 +5,14 @@ import { Logger } from "./utils/Logger";
 import { Storage } from "./model/Storage";
 import { ModelProviderManager } from "./model/ModelProvider";
 import { OpenRouterModelProvider } from "./model/provider/OpenRouter";
+import { SubagentManager } from "./model/SubagentManager";
 
 export class Application {
   static #instance: Application;
 
   #providerManager: ProviderManager;
   #modelManager: ModelProviderManager;
+  #subagentManager: SubagentManager;
 
   public readonly logger: Logger;
   public readonly configuration: Configuration;
@@ -28,6 +30,9 @@ export class Application {
     );
     this.#modelManager = new ModelProviderManager(
       this.logger.submodule("ModelManager"),
+    );
+    this.#subagentManager = new SubagentManager(
+      this.logger.submodule("SubagentManager"),
     );
 
     process.on("SIGINT", this.#handleShutdown.bind(this));
@@ -47,6 +52,10 @@ export class Application {
     return this.#modelManager;
   }
 
+  get subagentManager() {
+    return this.#subagentManager;
+  }
+
   /////////////////////////////////////////////////////////////////////////////
 
   async start(): Promise<void> {
@@ -54,6 +63,7 @@ export class Application {
 
     await this.configuration.load();
     await this.storage.init();
+    await this.#subagentManager.init();
     await this.#startProviders();
     await this.#startModels();
   }

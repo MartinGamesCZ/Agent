@@ -20,10 +20,17 @@ export class OpenRouterModelProvider implements IModelProvider {
     this.#openRouter = new OpenRouter({ apiKey });
   }
 
-  async chat(conversation: Conversation): Promise<string> {
+  async chat(
+    conversation: Conversation,
+    options?: { model?: string; tools?: any[] },
+  ): Promise<string> {
     const response = await callModel(this.#openRouter, {
-      model: Application.getInstance().configuration.config.ai?.model,
+      model:
+        options?.model ||
+        Application.getInstance().configuration.config.ai?.model ||
+        "",
       input: conversation.toOpenAIFormat(),
+      tools: options?.tools,
     });
 
     const message = await response.getText();

@@ -2,10 +2,18 @@ import { Application } from "../Application";
 import type { Logger } from "../utils/Logger";
 import type { Conversation } from "./Conversation";
 
+export interface IModelProviderChatOptions {
+  model?: string;
+  tools?: any[];
+}
+
 export interface IModelProvider {
   id: string;
 
-  chat(conversation: Conversation): Promise<string>;
+  chat(
+    conversation: Conversation,
+    options?: IModelProviderChatOptions,
+  ): Promise<string>;
 }
 
 export class ModelProviderManager {
@@ -41,11 +49,14 @@ export class ModelProviderManager {
     this.#logger.log(`Using provider ${this.#currentProvider.id}`);
   }
 
-  async chat(conversation: Conversation): Promise<string> {
+  async chat(
+    conversation: Conversation,
+    options?: IModelProviderChatOptions,
+  ): Promise<string> {
     if (!this.#currentProvider) {
       throw new Error("No provider configured");
     }
 
-    return await this.#currentProvider.chat(conversation);
+    return await this.#currentProvider.chat(conversation, options);
   }
 }
