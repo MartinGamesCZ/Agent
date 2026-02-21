@@ -4,17 +4,35 @@ import path from "path";
 import type { Logger } from "../utils/Logger";
 
 interface IConfiguration {
+  ai: Partial<{
+    provider: string;
+    model: string;
+  }>;
   providers: Partial<{
     discord: Partial<{
       token: string;
     }>;
   }>;
+  models: Partial<{
+    openrouter: Partial<{
+      apiKey: string;
+    }>;
+  }>;
 }
 
 export const defaultConfiguration: Partial<IConfiguration> = {
+  ai: {
+    provider: "openrouter",
+    model: "openai/gpt-oss-120b",
+  },
   providers: {
     discord: {
       token: "YOUR_DISCORD_TOKEN",
+    },
+  },
+  models: {
+    openrouter: {
+      apiKey: "YOUR_OPENROUTER_API_KEY",
     },
   },
 };

@@ -1,7 +1,14 @@
-import { Client, GatewayIntentBits, Message } from "discord.js";
+import {
+  ChannelType,
+  Client,
+  GatewayIntentBits,
+  Message,
+  ThreadChannel,
+} from "discord.js";
 import { Application } from "../../Application";
 import type { Logger } from "../../utils/Logger";
 import type { IProvider } from "../provider";
+import { Assistant } from "../../model/Assistant";
 
 export class DiscordBotProvider implements IProvider {
   readonly name: string = "DiscordBotProvider";
@@ -63,8 +70,49 @@ export class DiscordBotProvider implements IProvider {
 
   async #onMessage(message: Message): Promise<void> {
     if (message.author.bot) return;
-    if (!message.mentions.users.has(this.#client.user?.id ?? "")) return;
+    if (message.mentions.users.has(this.#client.user?.id ?? ""))
+      await this.#createConversation(message);
+    if (
+      message.channel.type === ChannelType.PublicThread ||
+      message.channel.type === ChannelType.PrivateThread
+    )
+      await this.#handleThreadMessage(message);
+  }
 
-    this.#logger.log("Received new message");
+  async #createConversation(message: Message): Promise<void> {
+    const assistant = new Assistant(this.#logger.submodule("Assistant"));
+    await assistant.createConversation();
+
+    const thread = await message.startThread({
+      name: assistant.conversation!.id,
+      autoArchiveDuration: 60,
+    });
+
+    assistant.onResponse((message: string) => {
+      thread.send(message);
+    });
+
+    assistant.conversation!.addUserMessage(message.cleanContent);
+    await assistant.run();
+  }
+
+  async #handleThreadMessage(message: Message): Promise<void> {
+    const app = Application.getInstance();
+    const conversationId = (message.channel as ThreadChannel).name;
+
+    const exists = await app.storage.checkIfExists(conversationId);
+    if (!exists) return;
+
+    const assistant = new Assistant(this.#logger.submodule("Assistant"));
+    assistant.useConversation(
+      await app.storage.getConversation(conversationId),
+    );
+
+    assistant.onResponse((msg: string) => {
+      (message.channel as ThreadChannel).send(msg);
+    });
+
+    assistant.conversation!.addUserMessage(message.cleanContent);
+    await assistant.run();
   }
 }
