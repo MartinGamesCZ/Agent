@@ -24,10 +24,14 @@ export class ProviderManager {
 
   async startAll(): Promise<void> {
     await Promise.all(this.#providers.map(this.#startProvider.bind(this)));
+
+    this.#logger.log("All providers started.");
   }
 
   async stopAll(): Promise<void> {
     await Promise.all(this.#providers.map((provider) => provider.stop()));
+
+    this.#logger.log("All providers stopped.");
   }
 
   async #startProvider(provider: IProvider): Promise<void> {

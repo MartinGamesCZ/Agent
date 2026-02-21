@@ -29,6 +29,10 @@ export class Configuration {
     this.#logger = logger;
   }
 
+  get config(): Partial<IConfiguration> {
+    return this.#configuration;
+  }
+
   async load(): Promise<void> {
     this.#logger.log("Loading configuration...");
 
