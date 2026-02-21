@@ -1,0 +1,19 @@
+{
+  "name": "agent",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "deepagents": "^1.8.0",
+    "discord.js": "^14.25.1",
+    "langchain": "^1.2.25",
+    "trello.js": "^1.2.8",
+    "zod": "^4.3.6"
+  }
+}
