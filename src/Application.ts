@@ -1,3 +1,4 @@
+import { Configuration } from "./configuration/Configuration";
 import { DiscordBotProvider } from "./providers/discord/DiscordBot";
 import { ProviderManager } from "./providers/provider";
 import { Logger } from "./utils/Logger";
@@ -8,10 +9,14 @@ export class Application {
   #providerManager: ProviderManager;
 
   public readonly logger: Logger;
+  public readonly configuration: Configuration;
 
   constructor() {
     this.logger = new Logger("Application");
 
+    this.configuration = new Configuration(
+      this.logger.submodule("Configuration"),
+    );
     this.#providerManager = new ProviderManager(
       this.logger.submodule("ProviderManager"),
     );
@@ -29,9 +34,12 @@ export class Application {
     return Application.#instance;
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
   async start(): Promise<void> {
     this.logger.log("Starting application...");
 
+    await this.configuration.load();
     await this.#startProviders();
   }
 
@@ -41,10 +49,13 @@ export class Application {
     await this.#providerManager.startAll();
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
   async stop(): Promise<void> {
     this.logger.log("Stopping application...");
 
     await this.#providerManager.stopAll();
+    await this.configuration.save();
 
     this.logger.log("Application stopped.");
   }

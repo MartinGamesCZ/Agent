@@ -1,8 +1,11 @@
 import type { Logger } from "../utils/Logger";
 
 export interface IProvider {
+  name: string;
+
   start(): Promise<void>;
   stop(): Promise<void>;
+  validateConfiguration(): Promise<boolean>;
 }
 
 export class ProviderManager {
@@ -20,10 +23,23 @@ export class ProviderManager {
   }
 
   async startAll(): Promise<void> {
-    await Promise.all(this.#providers.map((provider) => provider.start()));
+    await Promise.all(this.#providers.map(this.#startProvider.bind(this)));
   }
 
   async stopAll(): Promise<void> {
     await Promise.all(this.#providers.map((provider) => provider.stop()));
+  }
+
+  async #startProvider(provider: IProvider): Promise<void> {
+    const configValid = await provider.validateConfiguration();
+    if (!configValid) {
+      this.#logger.log(
+        `Provider ${provider.name} configuration is not valid, not starting.`,
+      );
+
+      return;
+    }
+
+    await provider.start();
   }
 }
