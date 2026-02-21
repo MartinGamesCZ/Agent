@@ -11,4 +11,8 @@ export class DiscordBotProvider implements IProvider {
   async start(): Promise<void> {
     this.#logger.log("Starting Discord bot provider...");
   }
+
+  async stop(): Promise<void> {
+    this.#logger.log("Stopping Discord bot provider...");
+  }
 }

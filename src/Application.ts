@@ -15,6 +15,10 @@ export class Application {
     this.#providerManager = new ProviderManager(
       this.logger.submodule("ProviderManager"),
     );
+
+    process.on("SIGINT", this.#handleShutdown.bind(this));
+    process.on("SIGTERM", this.#handleShutdown.bind(this));
+    process.on("exit", this.#handleShutdown.bind(this));
   }
 
   static getInstance(): Application {
@@ -35,5 +39,19 @@ export class Application {
     this.#providerManager.addProvider(DiscordBotProvider);
 
     await this.#providerManager.startAll();
+  }
+
+  async stop(): Promise<void> {
+    this.logger.log("Stopping application...");
+
+    await this.#providerManager.stopAll();
+
+    this.logger.log("Application stopped.");
+  }
+
+  async #handleShutdown(signal: string): Promise<void> {
+    this.logger.log(`Received ${signal} signal, shutting down application...`);
+
+    await this.stop();
   }
 }

@@ -2,6 +2,7 @@ import type { Logger } from "../utils/Logger";
 
 export interface IProvider {
   start(): Promise<void>;
+  stop(): Promise<void>;
 }
 
 export class ProviderManager {
@@ -20,5 +21,9 @@ export class ProviderManager {
 
   async startAll(): Promise<void> {
     await Promise.all(this.#providers.map((provider) => provider.start()));
+  }
+
+  async stopAll(): Promise<void> {
+    await Promise.all(this.#providers.map((provider) => provider.stop()));
   }
 }

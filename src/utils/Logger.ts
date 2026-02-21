@@ -1,3 +1,5 @@
+import chalk from "chalk";
+
 export class Logger {
   #module: string;
 
@@ -10,6 +12,6 @@ export class Logger {
   }
 
   log(message: string): void {
-    console.log(`[${this.#module}] ${message}`);
+    console.log(`${chalk.blue(this.#module)} ${message}`);
   }
 }

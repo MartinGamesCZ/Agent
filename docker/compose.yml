@@ -1,9 +1,12 @@
 services:
   agent:
-    build: .
+    tty: true
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
     container_name: agent
     restart: always
     env_file:
-      - .env
+      - ../.env
     volumes:
       - ./data:/app/data
