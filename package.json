@@ -10,6 +10,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "chalk": "^5.6.2",
     "deepagents": "^1.8.0",
     "discord.js": "^14.25.1",
     "langchain": "^1.2.25",

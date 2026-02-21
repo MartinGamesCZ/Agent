@@ -1,0 +1,9 @@
+services:
+  agent:
+    build: .
+    container_name: agent
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
